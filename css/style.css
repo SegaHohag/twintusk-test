@@ -258,6 +258,13 @@ tr:last-child td { border-bottom: 0; }
   transition: transform .35s ease;
 }
 .review-photo:hover img { transform: scale(1.04); }
+.review-stars {
+  margin: 0 0 12px;
+  color: #ffc107;
+  font-size: 22px;
+  line-height: 1;
+  letter-spacing: 2px;
+}
 .review strong { display: block; margin-top: 18px; }
 
 .final-cta {
@@ -380,4 +387,3 @@ main{
     margin: 0 auto;
     text-align: center;
 }
-
