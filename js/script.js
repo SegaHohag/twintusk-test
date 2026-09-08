@@ -44,6 +44,14 @@ const reviews = [
   ],
   text: `Установил ручку, всё хорошо. Спасибо за фото! Резинку в основание переставили, тоже всё нормально, всё встало по месту.`
 },
+ {
+  name: 'Покупатель',
+  photos: [
+    'images/otzyv-ruchka-ruchnika-1.jpg',
+    'images/otzyv-ruchka-ruchnika-2.jpg'
+  ],
+  text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
+},
   {
     name: 'Владислав, Civic 5D',
     photos: ['images/review1.jpg', 'images/review2.jpg'],
