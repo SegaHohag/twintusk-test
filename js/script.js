@@ -55,8 +55,7 @@ const reviews = [
   {
     name: 'Владислав, Civic 5D',
     photos: ['images/review1.jpg', 'images/review2.jpg'],
-    text: `Замена отличная !!!
-Встало все четко. В руке сидит уверенно. Полосы видно только если в плотную смотреть. Всем рекомендую.`
+    text: `Замена отличная !!!\nВстало все четко. В руке сидит уверенно. Полосы видно только если в плотную смотреть. Всем рекомендую.`
   },
 
   {
@@ -172,6 +171,7 @@ function renderReviewPhotos(review) {
 document.getElementById('reviewsGrid').innerHTML = reviews.map((review) => `
   <article class="review reveal">
     ${renderReviewPhotos(review)}
+    <div class="review-stars" aria-label="5 из 5 звезд" title="5 из 5 звезд">★★★★★</div>
     <p>«${escapeHTML(review.text)}»</p>
     <strong>${escapeHTML(review.name)}</strong>
   </article>
