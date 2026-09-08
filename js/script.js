@@ -28,6 +28,11 @@ const faqItems = [
 // Можно указать 1, 2, 3, 4 и больше фото. Если фото нет, оставьте photos: [].
 // Для длинного текста используйте обратные кавычки `...`.
 const reviews = [
+   {
+    name: 'Железякин, Honda Civic 8',
+    photos: ['images/honda-civic-8-otzyv-ruchka-ruchnika.jpg'],
+    text: `Отличный продавец, помог в поиске дополнительных деталей для ручника, сделал скидку, всегда на связи, быстро отправил! Рекомендую однозначно!`
+  },
   {
     name: 'Владислав, Civic 5D',
     photos: ['images/review1.jpg', 'images/review2.jpg'],
