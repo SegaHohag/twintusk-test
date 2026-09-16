@@ -192,7 +192,6 @@ const lightbox = document.getElementById('lightbox');
 const lightboxImage = lightbox.querySelector('img');
 
 // Все фотографии сайта собираются в одну галерею.
-// Открытие сохраняет текущий индекс, а переход дальше идет по кругу.
 const lightboxItems = [];
 let lightboxIndex = 0;
 let lightboxScale = 1;
@@ -274,18 +273,18 @@ function closeLightbox() {
   lightbox.classList.remove('is-open');
   lightbox.setAttribute('aria-hidden', 'true');
   lightboxImage.src = '';
+  lightboxImage.style.maxWidth = '';
+  lightboxImage.style.maxHeight = '';
   resetLightboxZoom();
   document.body.style.overflow = '';
 }
 
 document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
 
-// Клик по фону специально ничего не закрывает.
+// Нажатие по затемненному фону закрывает просмотр.
 lightbox.addEventListener('click', (event) => {
-  if (event.target === lightboxImage) {
-    if (lightboxScale === 1) {
-      showLightboxItem(lightboxIndex + 1);
-    }
+  if (event.target === lightbox) {
+    closeLightbox();
   }
 });
 
@@ -294,6 +293,19 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') closeLightbox();
   if (event.key === 'ArrowRight') showLightboxItem(lightboxIndex + 1);
   if (event.key === 'ArrowLeft') showLightboxItem(lightboxIndex - 1);
+});
+
+// Стараемся не увеличивать фотографию через CSS до размеров больше экрана.
+// Это особенно важно для вертикальных фото и телефонов.
+lightboxImage.addEventListener('load', () => {
+  lightboxImage.style.maxWidth = 'min(92vw, 1100px)';
+  lightboxImage.style.maxHeight = '86vh';
+  lightboxImage.style.width = 'auto';
+  lightboxImage.style.height = 'auto';
+  lightboxImage.style.objectFit = 'contain';
+  lightboxImage.style.display = 'block';
+  lightboxImage.style.margin = '0 auto';
+  resetLightboxZoom();
 });
 
 lightboxImage.addEventListener('dblclick', (event) => {
@@ -342,7 +354,6 @@ lightboxImage.addEventListener('pointerup', () => {
   applyLightboxZoom();
 });
 
-// На телефоне свайп по изображению переключает фото, если изображение не увеличено.
 let touchStartX = 0;
 let touchStartY = 0;
 lightboxImage.addEventListener('touchstart', (event) => {
