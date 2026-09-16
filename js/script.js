@@ -191,11 +191,67 @@ document.querySelectorAll('.review-photo img').forEach((img) => {
 const lightbox = document.getElementById('lightbox');
 const lightboxImage = lightbox.querySelector('img');
 
+// Все фотографии сайта собираются в одну галерею.
+// Открытие сохраняет текущий индекс, а переход дальше идет по кругу.
+const lightboxItems = [];
+let lightboxIndex = 0;
+let lightboxScale = 1;
+let lightboxTranslateX = 0;
+let lightboxTranslateY = 0;
+let lightboxDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragOriginX = 0;
+let dragOriginY = 0;
+
+function collectLightboxItems() {
+  lightboxItems.length = 0;
+  document.querySelectorAll('.gallery-item img, .review-photo img').forEach((img) => {
+    if (!img.src) return;
+    lightboxItems.push({ src: img.currentSrc || img.src, alt: img.alt || '' });
+  });
+}
+
+function resetLightboxZoom() {
+  lightboxScale = 1;
+  lightboxTranslateX = 0;
+  lightboxTranslateY = 0;
+  lightboxImage.style.transform = 'translate3d(0, 0, 0) scale(1)';
+  lightboxImage.style.cursor = 'zoom-in';
+}
+
+function applyLightboxZoom() {
+  lightboxImage.style.transform = `translate3d(${lightboxTranslateX}px, ${lightboxTranslateY}px, 0) scale(${lightboxScale})`;
+  lightboxImage.style.cursor = lightboxScale > 1 ? 'grab' : 'zoom-in';
+}
+
+function updateLightboxCounter() {
+  let counter = lightbox.querySelector('.lightbox-counter');
+  if (!counter) {
+    counter = document.createElement('div');
+    counter.className = 'lightbox-counter';
+    lightbox.appendChild(counter);
+  }
+  counter.textContent = `${lightboxIndex + 1} / ${lightboxItems.length}`;
+}
+
+function showLightboxItem(index) {
+  if (!lightboxItems.length) return;
+  lightboxIndex = (index + lightboxItems.length) % lightboxItems.length;
+  const item = lightboxItems[lightboxIndex];
+  lightboxImage.src = item.src;
+  lightboxImage.alt = item.alt;
+  resetLightboxZoom();
+  updateLightboxCounter();
+}
+
 function openLightbox(src, alt) {
-  lightboxImage.src = src;
-  lightboxImage.alt = alt;
+  collectLightboxItems();
+  const index = lightboxItems.findIndex((item) => item.src === src);
+  showLightboxItem(index >= 0 ? index : 0);
   lightbox.classList.add('is-open');
   lightbox.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
 }
 
 document.querySelectorAll('.gallery-item').forEach((item) => {
@@ -218,15 +274,92 @@ function closeLightbox() {
   lightbox.classList.remove('is-open');
   lightbox.setAttribute('aria-hidden', 'true');
   lightboxImage.src = '';
+  resetLightboxZoom();
+  document.body.style.overflow = '';
 }
 
 document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+
+// Клик по фону специально ничего не закрывает.
 lightbox.addEventListener('click', (event) => {
-  if (event.target === lightbox) closeLightbox();
+  if (event.target === lightboxImage) {
+    if (lightboxScale === 1) {
+      showLightboxItem(lightboxIndex + 1);
+    }
+  }
 });
+
 document.addEventListener('keydown', (event) => {
+  if (!lightbox.classList.contains('is-open')) return;
   if (event.key === 'Escape') closeLightbox();
+  if (event.key === 'ArrowRight') showLightboxItem(lightboxIndex + 1);
+  if (event.key === 'ArrowLeft') showLightboxItem(lightboxIndex - 1);
 });
+
+lightboxImage.addEventListener('dblclick', (event) => {
+  event.preventDefault();
+  if (lightboxScale === 1) {
+    lightboxScale = 2;
+  } else {
+    resetLightboxZoom();
+    return;
+  }
+  applyLightboxZoom();
+});
+
+lightboxImage.addEventListener('wheel', (event) => {
+  if (!lightbox.classList.contains('is-open')) return;
+  event.preventDefault();
+  const direction = event.deltaY < 0 ? 0.25 : -0.25;
+  lightboxScale = Math.min(4, Math.max(1, lightboxScale + direction));
+  if (lightboxScale === 1) {
+    lightboxTranslateX = 0;
+    lightboxTranslateY = 0;
+  }
+  applyLightboxZoom();
+}, { passive: false });
+
+lightboxImage.addEventListener('pointerdown', (event) => {
+  if (lightboxScale <= 1) return;
+  lightboxDragging = true;
+  lightboxImage.setPointerCapture(event.pointerId);
+  dragStartX = event.clientX;
+  dragStartY = event.clientY;
+  dragOriginX = lightboxTranslateX;
+  dragOriginY = lightboxTranslateY;
+  lightboxImage.style.cursor = 'grabbing';
+});
+
+lightboxImage.addEventListener('pointermove', (event) => {
+  if (!lightboxDragging) return;
+  lightboxTranslateX = dragOriginX + event.clientX - dragStartX;
+  lightboxTranslateY = dragOriginY + event.clientY - dragStartY;
+  applyLightboxZoom();
+});
+
+lightboxImage.addEventListener('pointerup', () => {
+  lightboxDragging = false;
+  applyLightboxZoom();
+});
+
+// На телефоне свайп по изображению переключает фото, если изображение не увеличено.
+let touchStartX = 0;
+let touchStartY = 0;
+lightboxImage.addEventListener('touchstart', (event) => {
+  if (event.touches.length !== 1) return;
+  touchStartX = event.touches[0].clientX;
+  touchStartY = event.touches[0].clientY;
+}, { passive: true });
+
+lightboxImage.addEventListener('touchend', (event) => {
+  if (lightboxScale > 1 || !event.changedTouches.length) return;
+  const touch = event.changedTouches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
+  }
+}, { passive: true });
 
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
