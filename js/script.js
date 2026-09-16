@@ -37,10 +37,10 @@ const reviews = [
   name: 'Василий',
   photos: [
     'images/otzyv-ruchka-ruchnika-civic-5d-1.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-2.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-3.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-4.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-5.jpg'
+    'images/otzyv-ruchnika-civic-5d-2.jpg',
+    'images/otzyv-ruchnika-civic-5d-3.jpg',
+    'images/otzyv-ruchnika-civic-5d-4.jpg',
+    'images/otzyv-ruchnika-civic-5d-5.jpg'
   ],
   text: `Установил ручку, всё хорошо. Спасибо за фото! Резинку в основание переставили, тоже всё нормально, всё встало по месту.`
 },
@@ -202,6 +202,9 @@ let dragStartX = 0;
 let dragStartY = 0;
 let dragOriginX = 0;
 let dragOriginY = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
 
 function collectLightboxItems() {
   lightboxItems.length = 0;
@@ -215,6 +218,7 @@ function resetLightboxZoom() {
   lightboxScale = 1;
   lightboxTranslateX = 0;
   lightboxTranslateY = 0;
+  lightboxDragging = false;
   lightboxImage.style.transform = 'translate3d(0, 0, 0) scale(1)';
   lightboxImage.style.cursor = 'zoom-in';
 }
@@ -275,6 +279,7 @@ function closeLightbox() {
   lightboxImage.src = '';
   lightboxImage.style.maxWidth = '';
   lightboxImage.style.maxHeight = '';
+  lightboxImage.style.touchAction = '';
   resetLightboxZoom();
   document.body.style.overflow = '';
 }
@@ -295,8 +300,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft') showLightboxItem(lightboxIndex - 1);
 });
 
-// Стараемся не увеличивать фотографию через CSS до размеров больше экрана.
-// Это особенно важно для вертикальных фото и телефонов.
+// Каждое фото вписывается в окно без увеличения сверх размеров экрана.
 lightboxImage.addEventListener('load', () => {
   lightboxImage.style.maxWidth = 'min(92vw, 1100px)';
   lightboxImage.style.maxHeight = '86vh';
@@ -305,10 +309,14 @@ lightboxImage.addEventListener('load', () => {
   lightboxImage.style.objectFit = 'contain';
   lightboxImage.style.display = 'block';
   lightboxImage.style.margin = '0 auto';
+  lightboxImage.style.touchAction = 'none';
   resetLightboxZoom();
 });
 
+// На компьютере двойной клик включает/выключает увеличение.
+// На сенсорных экранах dblclick не используется, чтобы не конфликтовать со свайпами.
 lightboxImage.addEventListener('dblclick', (event) => {
+  if (event.pointerType && event.pointerType !== 'mouse') return;
   event.preventDefault();
   if (lightboxScale === 1) {
     lightboxScale = 2;
@@ -331,8 +339,9 @@ lightboxImage.addEventListener('wheel', (event) => {
   applyLightboxZoom();
 }, { passive: false });
 
+// Мышь: перетаскивание увеличенного изображения.
 lightboxImage.addEventListener('pointerdown', (event) => {
-  if (lightboxScale <= 1) return;
+  if (event.pointerType !== 'mouse' || lightboxScale <= 1) return;
   lightboxDragging = true;
   lightboxImage.setPointerCapture(event.pointerId);
   dragStartX = event.clientX;
@@ -343,30 +352,52 @@ lightboxImage.addEventListener('pointerdown', (event) => {
 });
 
 lightboxImage.addEventListener('pointermove', (event) => {
-  if (!lightboxDragging) return;
+  if (event.pointerType !== 'mouse' || !lightboxDragging) return;
   lightboxTranslateX = dragOriginX + event.clientX - dragStartX;
   lightboxTranslateY = dragOriginY + event.clientY - dragStartY;
   applyLightboxZoom();
 });
 
-lightboxImage.addEventListener('pointerup', () => {
+function stopLightboxMouseDrag(event) {
+  if (event.pointerType !== 'mouse') return;
   lightboxDragging = false;
+  if (event.pointerId != null && lightboxImage.hasPointerCapture(event.pointerId)) {
+    lightboxImage.releasePointerCapture(event.pointerId);
+  }
   applyLightboxZoom();
+}
+
+lightboxImage.addEventListener('pointerup', stopLightboxMouseDrag);
+lightboxImage.addEventListener('pointercancel', stopLightboxMouseDrag);
+lightboxImage.addEventListener('pointerleave', (event) => {
+  if (event.pointerType === 'mouse' && !lightboxImage.hasPointerCapture(event.pointerId)) {
+    lightboxDragging = false;
+  }
 });
 
-let touchStartX = 0;
-let touchStartY = 0;
+// Телефон: только свайп влево/вправо для смены фото.
+// Масштабирование пальцами здесь специально не используется, чтобы жесты не конфликтовали.
 lightboxImage.addEventListener('touchstart', (event) => {
   if (event.touches.length !== 1) return;
   touchStartX = event.touches[0].clientX;
   touchStartY = event.touches[0].clientY;
+  touchMoved = false;
+}, { passive: true });
+
+lightboxImage.addEventListener('touchmove', (event) => {
+  if (event.touches.length !== 1) return;
+  const touch = event.touches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+  touchMoved = Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10;
 }, { passive: true });
 
 lightboxImage.addEventListener('touchend', (event) => {
-  if (lightboxScale > 1 || !event.changedTouches.length) return;
+  if (!event.changedTouches.length) return;
   const touch = event.changedTouches[0];
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
+  if (!touchMoved) return;
   if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
     showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
   }
