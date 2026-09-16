@@ -261,7 +261,7 @@ lightbox.addEventListener('click', (event) => {
 });
 
 // Клик по фотографии: левая половина — назад, правая — вперед.
-// Стрелки используют те же функции, поэтому поведение одинаковое на ПК и телефоне.
+// На телефоне используем тот же pointer-сценарий, что и для обычного касания.
 lightboxImage.addEventListener('click', (event) => {
   if (lightboxScale !== 1 || lightboxDragging || touchMoved) return;
   const rect = lightboxImage.getBoundingClientRect();
@@ -339,6 +339,8 @@ lightboxImage.addEventListener('pointerleave', (event) => {
   if (event.pointerType === 'mouse' && !lightboxImage.hasPointerCapture(event.pointerId)) lightboxDragging = false;
 });
 
+// Мобильная навигация: свайп перелистывает, обычное касание по фото —
+// левая половина назад, правая вперед. Клик после свайпа блокируем.
 lightboxImage.addEventListener('touchstart', (event) => {
   if (event.touches.length !== 1) return;
   touchStartX = event.touches[0].clientX;
@@ -359,11 +361,13 @@ lightboxImage.addEventListener('touchend', (event) => {
   const touch = event.changedTouches[0];
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
-  if (!touchMoved) return;
-  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+
+  if (touchMoved && Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
     showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
   }
-  setTimeout(() => { touchMoved = false; }, 0);
+
+  // Не даём последующему click от touch сработать как ещё один переход.
+  setTimeout(() => { touchMoved = false; }, 250);
 }, { passive: true });
 
 const revealObserver = new IntersectionObserver((entries) => {
