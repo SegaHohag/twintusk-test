@@ -33,17 +33,17 @@ const reviews = [
     name: 'Василий, Civic 5D',
     photos: [
       'images/otzyv-ruchka-ruchnika-civic-5d-1.jpg',
-      'images/otzyv-ruchnika-civic-5d-2.jpg',
-      'images/otzyv-ruchnika-civic-5d-3.jpg',
-      'images/otzyv-ruchnika-civic-5d-4.jpg',
-      'images/otzyv-ruchnika-civic-5d-5.jpg'
+      'images/otzyv-ruchka-ruchnika-civic-5d-2.jpg',
+      'images/otzyv-ruchka-ruchnika-civic-5d-3.jpg',
+      'images/otzyv-ruchka-ruchnika-civic-5d-4.jpg',
+      'images/otzyv-ruchka-ruchnika-civic-5d-5.jpg'
     ],
     text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
   },
   {
     name: 'Покупатель',
     photos: [
-      'images/otzyv-ruchka-ruchnika-1.jpg',
+      'images/otzyv-ruchnika-1.jpg',
       'images/otzyv-ruchnika-2.jpg'
     ],
     text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
@@ -88,50 +88,21 @@ document.querySelectorAll('img[data-fallback="true"]').forEach((img) => {
 });
 
 const videoMount = document.getElementById('videoMount');
-
 videoMount.innerHTML = `
 <div style="position:relative;width:100%;height:100%;cursor:pointer;">
-  <img src="${VIDEO_SETTINGS.poster}"
-       style="width:100%;height:100%;object-fit:cover;"
-       alt="Видео установки">
-  <div style="
-      position:absolute;
-      top:50%;
-      left:50%;
-      transform:translate(-50%,-50%);
-      padding:16px 24px;
-      background:#e21b2d;
-      color:white;
-      font-weight:bold;
-      border-radius:8px;">
-      ▶ Смотреть видео установки
-  </div>
-</div>
-`;
-
+  <img src="${VIDEO_SETTINGS.poster}" style="width:100%;height:100%;object-fit:cover;" alt="Видео установки">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:16px 24px;background:#e21b2d;color:white;font-weight:bold;border-radius:8px;">▶ Смотреть видео установки</div>
+</div>`;
 videoMount.addEventListener('click', () => {
-  videoMount.innerHTML = `
-    <video controls autoplay style="width:100%;height:100%;" poster="${VIDEO_SETTINGS.poster}">
-      <source src="${VIDEO_SETTINGS.localUrl}" type="video/mp4">
-    </video>
-  `;
+  videoMount.innerHTML = `<video controls autoplay style="width:100%;height:100%;" poster="${VIDEO_SETTINGS.poster}"><source src="${VIDEO_SETTINGS.localUrl}" type="video/mp4"></video>`;
 }, { once:true });
+
 document.getElementById('compatibilityRows').innerHTML = compatibilityModels.map((item) => `
-  <tr>
-    <td>${escapeHTML(item.model)}</td>
-    <td>${escapeHTML(item.years)}</td>
-    <td>${escapeHTML(item.body)}</td>
-    <td>${escapeHTML(item.status)}</td>
-  </tr>
+  <tr><td>${escapeHTML(item.model)}</td><td>${escapeHTML(item.years)}</td><td>${escapeHTML(item.body)}</td><td>${escapeHTML(item.status)}</td></tr>
 `).join('');
 
 document.getElementById('faqList').innerHTML = faqItems.map(([question, answer]) => `
-  <article class="faq-item">
-    <button class="faq-question" type="button" aria-expanded="false">
-      <span>${escapeHTML(question)}</span><span>+</span>
-    </button>
-    <div class="faq-answer">${escapeHTML(answer)}</div>
-  </article>
+  <article class="faq-item"><button class="faq-question" type="button" aria-expanded="false"><span>${escapeHTML(question)}</span><span>+</span></button><div class="faq-answer">${escapeHTML(answer)}</div></article>
 `).join('');
 
 document.querySelectorAll('.faq-question').forEach((button) => {
@@ -151,25 +122,11 @@ function getReviewPhotos(review) {
 function renderReviewPhotos(review) {
   const photos = getReviewPhotos(review);
   if (!photos.length) return '';
-
-  return `
-    <div class="review-photos" data-count="${photos.length}">
-      ${photos.map((photo, index) => `
-        <button class="review-photo" type="button" aria-label="Увеличить фото отзыва ${index + 1}">
-          <img src="${escapeHTML(photo)}" alt="Фото отзыва ${escapeHTML(review.name)} ${index + 1}" loading="lazy">
-        </button>
-      `).join('')}
-    </div>
-  `;
+  return `<div class="review-photos" data-count="${photos.length}">${photos.map((photo, index) => `<button class="review-photo" type="button" aria-label="Увеличить фото отзыва ${index + 1}"><img src="${escapeHTML(photo)}" alt="Фото отзыва ${escapeHTML(review.name)} ${index + 1}" loading="lazy"></button>`).join('')}</div>`;
 }
 
 document.getElementById('reviewsGrid').innerHTML = reviews.map((review) => `
-  <article class="review reveal">
-    ${renderReviewPhotos(review)}
-    <div class="review-stars" aria-label="5 из 5 звезд" title="5 из 5 звезд">★★★★★</div>
-    <p>«${escapeHTML(review.text)}»</p>
-    <strong>${escapeHTML(review.name)}</strong>
-  </article>
+  <article class="review reveal">${renderReviewPhotos(review)}<div class="review-stars" aria-label="5 из 5 звезд" title="5 из 5 звезд">★★★★★</div><p>«${escapeHTML(review.text)}»</p><strong>${escapeHTML(review.name)}</strong></article>
 `).join('');
 
 document.querySelectorAll('.review-photo img').forEach((img) => {
@@ -187,8 +144,6 @@ const lightbox = document.getElementById('lightbox');
 const lightboxImage = lightbox.querySelector('img');
 const lightboxPrev = lightbox.querySelector('.lightbox-prev');
 const lightboxNext = lightbox.querySelector('.lightbox-next');
-
-// Все фотографии сайта собираются в одну галерею.
 const lightboxItems = [];
 let lightboxIndex = 0;
 let lightboxScale = 1;
@@ -298,11 +253,8 @@ lightboxNext.addEventListener('click', (event) => {
   showLightboxItem(lightboxIndex + 1);
 });
 
-// Нажатие по затемненному фону закрывает просмотр.
 lightbox.addEventListener('click', (event) => {
-  if (event.target === lightbox) {
-    closeLightbox();
-  }
+  if (event.target === lightbox) closeLightbox();
 });
 
 document.addEventListener('keydown', (event) => {
@@ -312,7 +264,6 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft') showLightboxItem(lightboxIndex - 1);
 });
 
-// Каждое фото вписывается в окно без увеличения сверх размеров экрана.
 lightboxImage.addEventListener('load', () => {
   lightboxImage.style.maxWidth = 'min(92vw, 1100px)';
   lightboxImage.style.maxHeight = '86vh';
@@ -325,15 +276,10 @@ lightboxImage.addEventListener('load', () => {
   resetLightboxZoom();
 });
 
-// На компьютере двойной клик включает/выключает увеличение.
 lightboxImage.addEventListener('dblclick', (event) => {
   event.preventDefault();
-  if (lightboxScale === 1) {
-    lightboxScale = 2;
-  } else {
-    resetLightboxZoom();
-    return;
-  }
+  if (lightboxScale === 1) lightboxScale = 2;
+  else { resetLightboxZoom(); return; }
   applyLightboxZoom();
 });
 
@@ -342,14 +288,10 @@ lightboxImage.addEventListener('wheel', (event) => {
   event.preventDefault();
   const direction = event.deltaY < 0 ? 0.25 : -0.25;
   lightboxScale = Math.min(4, Math.max(1, lightboxScale + direction));
-  if (lightboxScale === 1) {
-    lightboxTranslateX = 0;
-    lightboxTranslateY = 0;
-  }
+  if (lightboxScale === 1) { lightboxTranslateX = 0; lightboxTranslateY = 0; }
   applyLightboxZoom();
 }, { passive: false });
 
-// Мышь: перетаскивание увеличенного изображения.
 lightboxImage.addEventListener('pointerdown', (event) => {
   if (event.pointerType !== 'mouse' || lightboxScale <= 1) return;
   lightboxDragging = true;
@@ -371,21 +313,16 @@ lightboxImage.addEventListener('pointermove', (event) => {
 function stopLightboxMouseDrag(event) {
   if (event.pointerType !== 'mouse') return;
   lightboxDragging = false;
-  if (event.pointerId != null && lightboxImage.hasPointerCapture(event.pointerId)) {
-    lightboxImage.releasePointerCapture(event.pointerId);
-  }
+  if (event.pointerId != null && lightboxImage.hasPointerCapture(event.pointerId)) lightboxImage.releasePointerCapture(event.pointerId);
   applyLightboxZoom();
 }
 
 lightboxImage.addEventListener('pointerup', stopLightboxMouseDrag);
 lightboxImage.addEventListener('pointercancel', stopLightboxMouseDrag);
 lightboxImage.addEventListener('pointerleave', (event) => {
-  if (event.pointerType === 'mouse' && !lightboxImage.hasPointerCapture(event.pointerId)) {
-    lightboxDragging = false;
-  }
+  if (event.pointerType === 'mouse' && !lightboxImage.hasPointerCapture(event.pointerId)) lightboxDragging = false;
 });
 
-// Телефон: свайп влево/вправо для смены фото.
 lightboxImage.addEventListener('touchstart', (event) => {
   if (event.touches.length !== 1) return;
   touchStartX = event.touches[0].clientX;
@@ -407,9 +344,7 @@ lightboxImage.addEventListener('touchend', (event) => {
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
   if (!touchMoved) return;
-  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
-    showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
-  }
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
 }, { passive: true });
 
 const revealObserver = new IntersectionObserver((entries) => {
