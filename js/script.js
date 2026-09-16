@@ -33,17 +33,17 @@ const reviews = [
     name: 'Василий, Civic 5D',
     photos: [
       'images/otzyv-ruchka-ruchnika-civic-5d-1.jpg',
-      'images/otzyv-ruchka-ruchnika-civic-5d-2.jpg',
-      'images/otzyv-ruchka-ruchnika-civic-5d-3.jpg',
-      'images/otzyv-ruchka-ruchnika-civic-5d-4.jpg',
-      'images/otzyv-ruchka-ruchnika-civic-5d-5.jpg'
+      'images/otzyv-ruchnika-civic-5d-2.jpg',
+      'images/otzyv-ruchnika-civic-5d-3.jpg',
+      'images/otzyv-ruchnika-civic-5d-4.jpg',
+      'images/otzyv-ruchnika-civic-5d-5.jpg'
     ],
     text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
   },
   {
     name: 'Покупатель',
     photos: [
-      'images/otzyv-ruchnika-1.jpg',
+      'images/otzyv-ruchka-ruchnika-1.jpg',
       'images/otzyv-ruchnika-2.jpg'
     ],
     text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
@@ -122,7 +122,10 @@ function getReviewPhotos(review) {
 function renderReviewPhotos(review) {
   const photos = getReviewPhotos(review);
   if (!photos.length) return '';
-  return `<div class="review-photos" data-count="${photos.length}">${photos.map((photo, index) => `<button class="review-photo" type="button" aria-label="Увеличить фото отзыва ${index + 1}"><img src="${escapeHTML(photo)}" alt="Фото отзыва ${escapeHTML(review.name)} ${index + 1}" loading="lazy"></button>`).join('')}</div>`;
+  return `<div class="review-photos" data-count="${photos.length}">${photos.map((photo, index) => `
+    <button class="review-photo" type="button" aria-label="Увеличить фото отзыва ${index + 1}">
+      <img src="${escapeHTML(photo)}" alt="Фото отзыва ${escapeHTML(review.name)} ${index + 1}" loading="lazy">
+    </button>`).join('')}</div>`;
 }
 
 document.getElementById('reviewsGrid').innerHTML = reviews.map((review) => `
@@ -257,6 +260,19 @@ lightbox.addEventListener('click', (event) => {
   if (event.target === lightbox) closeLightbox();
 });
 
+// Клик по фотографии: левая половина — назад, правая — вперед.
+// Стрелки используют те же функции, поэтому поведение одинаковое на ПК и телефоне.
+lightboxImage.addEventListener('click', (event) => {
+  if (lightboxScale !== 1 || lightboxDragging || touchMoved) return;
+  const rect = lightboxImage.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  if (x < rect.width / 2) {
+    showLightboxItem(lightboxIndex - 1);
+  } else {
+    showLightboxItem(lightboxIndex + 1);
+  }
+});
+
 document.addEventListener('keydown', (event) => {
   if (!lightbox.classList.contains('is-open')) return;
   if (event.key === 'Escape') closeLightbox();
@@ -344,7 +360,10 @@ lightboxImage.addEventListener('touchend', (event) => {
   const deltaX = touch.clientX - touchStartX;
   const deltaY = touch.clientY - touchStartY;
   if (!touchMoved) return;
-  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
+  if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
+    showLightboxItem(lightboxIndex + (deltaX < 0 ? 1 : -1));
+  }
+  setTimeout(() => { touchMoved = false; }, 0);
 }, { passive: true });
 
 const revealObserver = new IntersectionObserver((entries) => {
