@@ -18,46 +18,41 @@ const faqItems = [
   ['Из какого материала изготовлена ручка?', 'Ручка изготовлена из прочного пластика методом 3D-печати и рассчитана на ежедневное использование.'],
   ['Подойдет ли на мой автомобиль?', 'Изделие предназначено только для Honda Civic 5D: Civic VIII, Civic VIII рестайлинг, Civic Type R VIII и Civic Type R VIII рестайлинг. На Civic 4D не подходит. Перед покупкой проконсультируйтесь с продавцом.'],
   ['Сложно ли установить?', 'Установка простая и обычно не требует сложной доработки: снять старую ручку, подготовить посадочное место и установить новую.'],
-  ['Есть ли доставка?', 'Да. Заказ оформляется через Авито, а доступные способы доставки указаны в объявлении.'],
-  ['Сколько служит такая деталь?', 'Срок службы зависит от эксплуатации, но каждая деталь проходит контроль качества перед отправкой.'],
-  ['Отличается ли от оригинала?', 'Деталь повторяет размеры оригинала и совместима со штатным креплением, но производится методом 3D-печати.']
+  ['Есть ли доставка?', 'Заказ оформляется через Авито, доступны варианты доставки, указанные в объявлении.'],
+  ['Сколько служит такая деталь?', 'Срок службы зависит от условий эксплуатации, но каждая деталь проходит контроль качества перед отправкой.'],
+  ['Отличается ли от оригинала?', 'Деталь повторяет размеры оригинала и совместима со штатным креплением, при этом производится методом 3D-печати.']
 ];
 
-// Новые отзывы можно добавлять в начало этого списка, сразу после строки `const reviews = [`.
-// Если у отзыва есть фото, положите файлы в папку images и укажите пути в поле photos.
-// Можно указать 1, 2, 3, 4 и больше фото. Если фото нет, оставьте photos: [].
-// Для длинного текста используйте обратные кавычки `...`.
 const reviews = [
-   {
+  {
     name: 'Железякин, Honda Civic 8',
     photos: ['images/honda-civic-8-otzyv-ruchka-ruchnika.jpg'],
-    text: `Отличный продавец, помог в поиске дополнительных деталей для ручника, сделал скидку, всегда на связи, быстро отправил! Рекомендую однозначно!`
+    text: `Установил ручку, всё хорошо. Спасибо за фото! Резинку в основание переставили, тоже всё нормально, всё встало по месту.`
   },
- {
-  name: 'Василий',
-  photos: [
-    'images/otzyv-ruchka-ruchnika-civic-5d-1.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-2.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-3.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-4.jpg',
-    'images/otzyv-ruchka-ruchnika-civic-5d-5.jpg'
-  ],
-  text: `Установил ручку, всё хорошо. Спасибо за фото! Резинку в основание переставили, тоже всё нормально, всё встало по месту.`
-},
- {
-  name: 'Покупатель',
-  photos: [
-    'images/otzyv-ruchka-ruchnika-1.jpg',
-    'images/otzyv-ruchka-ruchnika-2.jpg'
-  ],
-  text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
-},
+  {
+    name: 'Василий, Civic 5D',
+    photos: [
+      'images/otzyv-ruchka-ruchnika-civic-5d-1.jpg',
+      'images/otzyv-ruchnika-civic-5d-2.jpg',
+      'images/otzyv-ruchnika-civic-5d-3.jpg',
+      'images/otzyv-ruchnika-civic-5d-4.jpg',
+      'images/otzyv-ruchnika-civic-5d-5.jpg'
+    ],
+    text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
+  },
+  {
+    name: 'Покупатель',
+    photos: [
+      'images/otzyv-ruchka-ruchnika-1.jpg',
+      'images/otzyv-ruchnika-2.jpg'
+    ],
+    text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
+  },
   {
     name: 'Владислав, Civic 5D',
     photos: ['images/review1.jpg', 'images/review2.jpg'],
     text: `Замена отличная !!!\nВстало все четко. В руке сидит уверенно. Полосы видно только если в плотную смотреть. Всем рекомендую.`
   },
-
   {
     name: 'Илья, Civic 5D',
     photos: [],
@@ -190,6 +185,8 @@ document.querySelectorAll('.review-photo img').forEach((img) => {
 
 const lightbox = document.getElementById('lightbox');
 const lightboxImage = lightbox.querySelector('img');
+const lightboxPrev = lightbox.querySelector('.lightbox-prev');
+const lightboxNext = lightbox.querySelector('.lightbox-next');
 
 // Все фотографии сайта собираются в одну галерею.
 const lightboxItems = [];
@@ -238,6 +235,12 @@ function updateLightboxCounter() {
   counter.textContent = `${lightboxIndex + 1} / ${lightboxItems.length}`;
 }
 
+function updateLightboxArrows() {
+  const visible = lightboxItems.length > 1;
+  lightboxPrev.hidden = !visible;
+  lightboxNext.hidden = !visible;
+}
+
 function showLightboxItem(index) {
   if (!lightboxItems.length) return;
   lightboxIndex = (index + lightboxItems.length) % lightboxItems.length;
@@ -246,6 +249,7 @@ function showLightboxItem(index) {
   lightboxImage.alt = item.alt;
   resetLightboxZoom();
   updateLightboxCounter();
+  updateLightboxArrows();
 }
 
 function openLightbox(src, alt) {
@@ -285,6 +289,14 @@ function closeLightbox() {
 }
 
 document.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+lightboxPrev.addEventListener('click', (event) => {
+  event.stopPropagation();
+  showLightboxItem(lightboxIndex - 1);
+});
+lightboxNext.addEventListener('click', (event) => {
+  event.stopPropagation();
+  showLightboxItem(lightboxIndex + 1);
+});
 
 // Нажатие по затемненному фону закрывает просмотр.
 lightbox.addEventListener('click', (event) => {
@@ -314,9 +326,7 @@ lightboxImage.addEventListener('load', () => {
 });
 
 // На компьютере двойной клик включает/выключает увеличение.
-// На сенсорных экранах dblclick не используется, чтобы не конфликтовать со свайпами.
 lightboxImage.addEventListener('dblclick', (event) => {
-  if (event.pointerType && event.pointerType !== 'mouse') return;
   event.preventDefault();
   if (lightboxScale === 1) {
     lightboxScale = 2;
@@ -375,8 +385,7 @@ lightboxImage.addEventListener('pointerleave', (event) => {
   }
 });
 
-// Телефон: только свайп влево/вправо для смены фото.
-// Масштабирование пальцами здесь специально не используется, чтобы жесты не конфликтовали.
+// Телефон: свайп влево/вправо для смены фото.
 lightboxImage.addEventListener('touchstart', (event) => {
   if (event.touches.length !== 1) return;
   touchStartX = event.touches[0].clientX;
