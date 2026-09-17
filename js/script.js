@@ -44,7 +44,7 @@ const reviews = [
     name: 'Покупатель',
     photos: [
       'images/otzyv-ruchka-ruchnika-1.jpg',
-      'images/otzyv-ruchnika-2.jpg'
+      'images/otzyv-ruchka-ruchnika-2.jpg'
     ],
     text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
   },
