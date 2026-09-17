@@ -33,10 +33,10 @@ const reviews = [
     name: 'Василий, Civic 5D',
     photos: [
       'images/otzyv-ruchka-ruchnika-civic-5d-1.jpg',
-      'images/otzyv-ruchnika-civic-5d-2.jpg',
-      'images/otzyv-ruchnika-civic-5d-3.jpg',
-      'images/otzyv-ruchnika-civic-5d-4.jpg',
-      'images/otzyv-ruchnika-civic-5d-5.jpg'
+      'images/otzyv-ruchka-ruchnika-civic-5d-2.jpg',
+      'images/otzyv-ruchka-ruchnika-civic-5d-3.jpg',
+      'images/otzyv-ruchka-ruchnika-civic-5d-4.jpg',
+      'images/otzyv-ruchka-ruchnika-civic-5d-5.jpg'
     ],
     text: `Ручку получил, качество приятно удивило. Всё встало отлично. Спасибо!`
   },
